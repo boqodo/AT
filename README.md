@@ -5,13 +5,31 @@ Java 获取注解(Annotation)的工具类
 
 >该工具类的灵感来源于[JOOR](https://github.com/jOOQ/jOOR)
 
+###使用例子
+
+####静态导入
+```java
+
+import static z.cube.utils.AT.at;
+
+```
+
+####获取包上注解
+```java
+
+ PackageAnnotationTest pat = at(Person.class)
+                .package_()
+                .annotation(PackageAnnotationTest.class).get();
+                
+```
+
 ####获取类上注解
 
 ```java
 
 XmlRootElement x = at(Person.class)
-                .annotation(XmlRootElement.class)
-                .get();
+            .annotation(XmlRootElement.class)
+            .get();
 
 ```
 
@@ -40,20 +58,20 @@ XmlAttribute att = at(Person.class)
 ```java
 
 NotNull nn = at(Person.class)
-                .method("setName", String.class)
-                .annotation(NotNull.class)
-                .get();
+        .method("setName", String.class)
+        .annotation(NotNull.class)
+        .get();
 ```
 
-###获取参数上的注解
+####获取参数上的注解
 ```java
 // 通过参数名称的方式
 // 获取方法参数名称为name上的注解
 NotNull nn = at(Person.class)
-                .method("setName", String.class)
-                .param("name")
-                .annotation(NotNull.class)
-                .get();
+        .method("setName", String.class)
+        .param("name")
+        .annotation(NotNull.class)
+        .get();
                 
 // 获取构造函数参数名称为name上的注解
 List<Annotation> anns = at(Person.class)
@@ -63,12 +81,13 @@ List<Annotation> anns = at(Person.class)
 
 // 通过参数索引的方式
 NotNull nn2 = at(Person.class)
-                .method("setName", String.class)
-                .arg(0)
-                .annotation(NotNull.class)
-                .get();
+        .method("setName", String.class)
+        .arg(0)
+        .annotation(NotNull.class)
+        .get();
 
-Max max = at(Person.class).constructor(String.class, Integer.class)
-                .arg(1)
-                .annotation(Max.class).get();
+Max max = at(Person.class)
+        .constructor(String.class, Integer.class)
+        .arg(1)
+        .annotation(Max.class).get();
 ```

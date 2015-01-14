@@ -1,4 +1,5 @@
 package z.cube.utils;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -152,13 +153,28 @@ public class AT {
     }
 
     /**
+     * 获取包信息
+     * (package是关键字，只能加"_"处理)
+     *
+     * @return 根据对应包创建的AT对象
+     */
+    public AT package_() {
+        if (this.object instanceof Class) {
+            Package p = ((Class) this.object).getPackage();
+            return new AT(p);
+        } else {
+            throw new RuntimeException("非Class对象无法获取Package!");
+        }
+    }
+
+    /**
      * 获取指定的注解
      *
      * @param annotationClass 指定的注解类
      * @return 根据指定注解创建的AT对象
      */
     public AT annotation(Class<? extends Annotation> annotationClass) {
-        Annotation annObject= null;
+        Annotation annObject = null;
         if (this.object instanceof AnnotatedElement) {
             AnnotatedElement annotatedElement = (AnnotatedElement) this.object;
             annObject = annotatedElement.getAnnotation(annotationClass);
@@ -166,7 +182,7 @@ public class AT {
             Annotation[] annotations = (Annotation[]) object;
             for (Annotation annotation : annotations) {
                 if (annotationClass.equals(annotation.annotationType())) {
-                    annObject=annotation;
+                    annObject = annotation;
                 }
             }
         }
@@ -185,11 +201,11 @@ public class AT {
         Annotation[] annotations = null;
         if (this.object instanceof AnnotatedElement) {
             AnnotatedElement annotatedElement = (AnnotatedElement) this.object;
-            annotations=annotatedElement.getDeclaredAnnotations();
+            annotations = annotatedElement.getDeclaredAnnotations();
         } else if (this.object instanceof Annotation[]) {
             annotations = (Annotation[]) object;
         }
-        if (annotations == null || annotations.length==0) {
+        if (annotations == null || annotations.length == 0) {
             throw new RuntimeException(String.format("在[%s]上无法获取到Annotation!", this.object));
         }
         return new AT(Arrays.asList(annotations));

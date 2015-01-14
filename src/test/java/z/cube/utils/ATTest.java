@@ -189,10 +189,15 @@ public class ATTest {
 
     @Test
     public final void testPackage() {
-        List<Annotation> annotations = at(Person.class.getPackage()).annotation().list();
+        List<Annotation> annotations = at(Person.class.getPackage())
+                .annotation().list();
         for (Annotation annotation : annotations) {
             assertThat(annotation).isInstanceOfAny(PackageAnnotationTest.class);
         }
+        PackageAnnotationTest pat = at(Person.class)
+                .package_()
+                .annotation(PackageAnnotationTest.class).get();
+        assertThat(pat).isNotNull();
     }
 
     @Test(expected = RuntimeException.class)
@@ -251,4 +256,8 @@ public class ATTest {
         at(Person.class).field("bean").annotation();
     }
 
+    @Test(expected = RuntimeException.class)
+    public final void testPackageExceeption() {
+        at(Person.class).field("name").package_();
+    }
 }
