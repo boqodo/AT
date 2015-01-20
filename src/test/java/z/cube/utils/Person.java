@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @XmlRootElement(name = "z.cube.utils.Person")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -51,9 +50,9 @@ public class Person {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("name", name)
-                .append("age", age)
-                .toString();
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
     }
 }

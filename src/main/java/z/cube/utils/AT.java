@@ -1,6 +1,5 @@
 package z.cube.utils;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 
@@ -183,6 +182,7 @@ public class AT {
             for (Annotation annotation : annotations) {
                 if (annotationClass.equals(annotation.annotationType())) {
                     annObject = annotation;
+                    break;
                 }
             }
         }
@@ -218,22 +218,51 @@ public class AT {
      * @return 根据匹配的参数位置上的注解创建的AT对象
      */
     public AT param(String name) {
-        if (this.object instanceof Method) {
-            Method method = (Method) this.object;
+        //传入参数的名称数组
+        String[] parameterNames = parameterNames();
+        int index = indexOf(parameterNames, name);
+        return arg(index);
+    }
+    
+    private <T> int indexOf(T[] array, T t) {
+        int index = -1;
+        if (array != null) {
+            for (int i = 0; i < array.length; i++) {
 
-            //传入参数的名称数组
-            String[] parameterNames = PND.getParameterNames(method);
-            int index = ArrayUtils.indexOf(parameterNames, name);
-            Annotation[][] annss = method.getParameterAnnotations();
-            return new AT(annss[index]);
-        } else if (this.object instanceof Constructor) {
-            Constructor<?> constructor = (Constructor<?>) this.object;
-            String[] parameterNames = PND.getParameterNames(constructor);
-            int index = ArrayUtils.indexOf(parameterNames, name);
-            Annotation[][] annss = constructor.getParameterAnnotations();
-            return new AT(annss[index]);
+                if ((t != null && t.equals(array[i]))
+                        || (t == null && array[i] == null)) {
+
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    }
+
+    private String[] parameterNames() {
+        Object methodOrConstructor = this.object;
+        if (methodOrConstructor instanceof Method) {
+            Method method = (Method) methodOrConstructor;
+            return PND.getParameterNames(method);
+        } else if (methodOrConstructor instanceof Constructor) {
+            Constructor<?> constructor = (Constructor<?>) methodOrConstructor;
+            return PND.getParameterNames(constructor);
         } else {
-            throw new RuntimeException("非Method或Constructor无法获取参数信息!");
+            throw new RuntimeException("除Method和Constructor类外无法获取参数名称!");
+        }
+    }
+
+    private Annotation[][] parameterAnnotations() {
+        Object methodOrConstructor = this.object;
+        if (methodOrConstructor instanceof Method) {
+            Method method = (Method) methodOrConstructor;
+            return method.getParameterAnnotations();
+        } else if (methodOrConstructor instanceof Constructor) {
+            Constructor<?> constructor = (Constructor<?>) methodOrConstructor;
+            return constructor.getParameterAnnotations();
+        } else {
+            throw new RuntimeException("除Method和Constructor类外无法获取参数注解!");
         }
     }
 
@@ -244,18 +273,11 @@ public class AT {
      * @return 根据匹配的参数位置上的注解创建的AT对象
      */
     public AT arg(int i) {
-        if (this.object instanceof Method) {
-            Method method = (Method) this.object;
-            Annotation[][] annss = method.getParameterAnnotations();
-            //TODO:判断是否超出索引
-            return new AT(annss[i]);
-        } else if (this.object instanceof Constructor) {
-            Constructor<?> constructor = (Constructor<?>) this.object;
-            Annotation[][] annss = constructor.getParameterAnnotations();
-            return new AT(annss[i]);
-        } else {
-            throw new RuntimeException("非Method或Constructor无法获取参数信息!");
+        Annotation[][] annotations = parameterAnnotations();
+        if (i > (annotations.length - 1)) {
+            //数组下标越界自动抛异常，是否还需手工抛异常?
         }
+        return new AT(annotations[i]);
     }
 
     /**
@@ -300,6 +322,7 @@ public class AT {
             for (Annotation annotation : annotations) {
                 if (annotationClass.equals(annotation.annotationType())) {
                     t = (T) annotation;
+                    break;
                 }
             }
         }

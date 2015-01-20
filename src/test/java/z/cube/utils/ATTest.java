@@ -15,6 +15,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static z.cube.utils.AT.at;
@@ -136,6 +137,9 @@ public class ATTest {
                 .annotation(Max.class).get();
         assertThat(max2).isNotNull();
         assertThat(max2.value()).isEqualTo(20);
+        
+//        Map<String,Annotation> paramsAnnotationMap=at(Person.class).constructor(String.class, Integer.class)
+//                .param().annotation().map();
     }
 
     @Test
@@ -174,7 +178,7 @@ public class ATTest {
     }
 
     @Test
-    public final void testAnn() {
+    public final void testAiMethod() {
         String name = at(Person.class)
                 .field("name")
                 .ai(XmlAttribute.class).name();
@@ -211,53 +215,53 @@ public class ATTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testExceeption3() {
+    public final void testException3() {
         at(Person.class).method("getName").constructor(String.class, Integer.class);
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testExceeption4() {
+    public final void testException4() {
         at(Person.class).method("getName").annotation(XmlAttribute.class).get();
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testExceeption5() {
+    public final void testException5() {
         at(Person.class).method("getName").ai(XmlAttribute.class);
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testExceeption6() {
+    public final void testException6() {
         at(Person.class).field("name").param("name");
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testExceeption7() {
+    public final void testException7() {
         at(Person.class).field("name").arg(0);
     }
 
 
     @Test(expected = RuntimeException.class)
-    public final void testExceeption8() {
+    public final void testException8() {
         at(Person.class).constructor().annotation();
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testConstructorExceeption() {
+    public final void testConstructorException() {
         at(Person.class).constructor(Integer.class).annotation();
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testMethodExceeption() {
+    public final void testMethodException() {
         at(Person.class).method("setPerson").annotation();
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testFeildExceeption() {
+    public final void testFieldException() {
         at(Person.class).field("bean").annotation();
     }
 
     @Test(expected = RuntimeException.class)
-    public final void testPackageExceeption() {
+    public final void testPackageException() {
         at(Person.class).field("name").package_();
     }
 }
