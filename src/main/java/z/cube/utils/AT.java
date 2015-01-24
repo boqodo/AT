@@ -9,6 +9,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Annotation 注解工具类
@@ -84,6 +86,7 @@ public class AT {
      * 获取匹配的字段
      *
      * @param name 字段名称
+     *
      * @return 根据对应字段创建的AT对象
      */
     public AT field(String name) {
@@ -105,6 +108,7 @@ public class AT {
      *
      * @param name 方法名称
      * @param args 方法参数类型列表
+     *
      * @return 根据对应方法创建的AT对象
      */
     public AT method(String name, Class<?>... args) {
@@ -125,6 +129,7 @@ public class AT {
      * 获取匹配的无参数方法
      *
      * @param name 方法名称
+     *
      * @return 根据对应方法创建的AT对象
      */
     public AT method(String name) {
@@ -135,6 +140,7 @@ public class AT {
      * 获取匹配的构造函数
      *
      * @param parameterTypes 构造函数参数类型列表
+     *
      * @return 根据对应构造函数创建的AT对象
      */
     public AT constructor(Class<?>... parameterTypes) {
@@ -170,6 +176,7 @@ public class AT {
      * 获取指定的注解
      *
      * @param annotationClass 指定的注解类
+     *
      * @return 根据指定注解创建的AT对象
      */
     public AT annotation(Class<? extends Annotation> annotationClass) {
@@ -185,9 +192,6 @@ public class AT {
                     break;
                 }
             }
-        }
-        if (annObject == null) {
-            throw new RuntimeException(String.format("在[%s]上无法获取到[%s]!", this.object, annotationClass));
         }
         return new AT(annObject);
     }
@@ -215,31 +219,21 @@ public class AT {
      * 根据名称获取匹配的参数
      *
      * @param name 参数名称
+     *
      * @return 根据匹配的参数位置上的注解创建的AT对象
      */
     public AT param(String name) {
         //传入参数的名称数组
         String[] parameterNames = parameterNames();
-        int index = indexOf(parameterNames, name);
+
+        int index = Arrays.asList(parameterNames).indexOf(name);
         return arg(index);
     }
-    
-    private <T> int indexOf(T[] array, T t) {
-        int index = -1;
-        if (array != null) {
-            for (int i = 0; i < array.length; i++) {
 
-                if ((t != null && t.equals(array[i]))
-                        || (t == null && array[i] == null)) {
-
-                    index = i;
-                    break;
-                }
-            }
-        }
-        return index;
-    }
-
+    /**
+     * 获取方法或是构造函数的参数名称
+     * @return  参数名称数组
+     */
     private String[] parameterNames() {
         Object methodOrConstructor = this.object;
         if (methodOrConstructor instanceof Method) {
@@ -253,6 +247,10 @@ public class AT {
         }
     }
 
+    /**
+     * 获取方法或是构造函数的注解
+     * @return  注解数组
+     */
     private Annotation[][] parameterAnnotations() {
         Object methodOrConstructor = this.object;
         if (methodOrConstructor instanceof Method) {
@@ -270,6 +268,7 @@ public class AT {
      * 根据索引获取匹配的参数
      *
      * @param i 参数索引位置
+     *
      * @return 根据匹配的参数位置上的注解创建的AT对象
      */
     public AT arg(int i) {
@@ -284,6 +283,7 @@ public class AT {
      * 获取指定注解
      *
      * @param <T> Annotation
+     *
      * @return Annotation实例对象
      */
     @SuppressWarnings("unchecked")
@@ -295,6 +295,7 @@ public class AT {
      * 获取所有注解列表
      *
      * @param <T> 继承Iterable的集合类
+     *
      * @return 存放Annotation的集合类
      */
     @SuppressWarnings("unchecked")
@@ -309,6 +310,7 @@ public class AT {
      *
      * @param annotationClass 注解类class
      * @param <T>             注解具体类
+     *
      * @return 注解具体类实例对象
      */
     @SuppressWarnings("unchecked")
@@ -330,5 +332,57 @@ public class AT {
             throw new RuntimeException(String.format("在[%s]上无法获取到%s!", this.object, annotationClass));
         }
         return t;
+    }
+
+    /**
+     * 是否存在
+     * @return  true表示存在，false表示不存在
+     */
+    public boolean isPresent() {
+        return this.object != null;
+    }
+
+    /**
+     * 是否存在指定的注解
+     * @param annotationClass   指定注解
+     * @return  true表示存在，false表示不存在
+     */
+    public boolean isPresent(Class<? extends Annotation> annotationClass) {
+        return this.annotation(annotationClass).isPresent();
+    }
+
+    /**
+     * 组装由参数名称和对应参数上的注解数组构成的map
+     */
+    public AT param() {
+        Annotation[][] annotations=this.parameterAnnotations();
+        String[] names= this.parameterNames();
+        Map<String,Annotation[]> map=new HashMap<String, Annotation[]>(8);
+        for (int i = 0; i < names.length; i++) {
+            map.put(names[i],annotations[i]);
+        }
+        return new AT(map);
+    }
+
+    /**
+     * 组装由参数索引和对应参数上的注解数组构成的map
+     */
+    public AT arg(){
+        Annotation[][] annotations=this.parameterAnnotations();
+        Map<String,Annotation[]> map=new HashMap<String, Annotation[]>(8);
+        for (int i = 0; i < annotations.length; i++) {
+            map.put(String.valueOf(i),annotations[i]);
+        }
+        return new AT(map);
+    }
+
+    /**
+     * 获取参数注解对应Map
+     */
+    public Map<String, Annotation[]> map() {
+        if(this.object instanceof Map){
+            return (Map<String, Annotation[]>) this.object;
+        }
+        throw new RuntimeException("无法正确获取map对象!");
     }
 }

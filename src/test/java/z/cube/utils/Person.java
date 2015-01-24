@@ -48,6 +48,11 @@ public class Person {
     }
 
 
+    public void mutlEle(@NotNull String name, @Max(value = 20) Integer age){
+        this.name = name;
+        this.age = age;
+    }
+
     @Override
     public String toString() {
         return "Person{" +

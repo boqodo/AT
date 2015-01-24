@@ -10,10 +10,12 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -138,8 +140,6 @@ public class ATTest {
         assertThat(max2).isNotNull();
         assertThat(max2.value()).isEqualTo(20);
         
-//        Map<String,Annotation> paramsAnnotationMap=at(Person.class).constructor(String.class, Integer.class)
-//                .param().annotation().map();
     }
 
     @Test
@@ -190,6 +190,78 @@ public class ATTest {
                 .param("age").ai(Max.class).value();
         assertThat(value).isNotNull().isEqualTo(20l);
     }
+    @Test
+    public final void testParamAndMapMethod(){
+        Map<String,Annotation[]> paramsAnnotationMap=at(Person.class).constructor(String.class, Integer.class)
+                .param().map();
+        for(Map.Entry<String,Annotation[]> entry : paramsAnnotationMap.entrySet()){
+            assertThat(entry.getKey()).isIn("name","age");
+            if("name".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(NotNull.class);
+                }
+            }else if("age".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(Max.class);
+                }
+            }
+        }
+
+        Map<String,Annotation[]> paramsAnnotationMap2=at(Person.class).method("mutlEle",String.class, Integer.class)
+                .param().map();
+        for(Map.Entry<String,Annotation[]> entry : paramsAnnotationMap.entrySet()){
+            assertThat(entry.getKey()).isIn("name","age");
+            if("name".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(NotNull.class);
+                }
+            }else if("age".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(Max.class);
+                }
+            }
+        }
+    }
+    @Test
+    public final void testArgAndMapMethod(){
+        Map<String,Annotation[]> paramsAnnotationMap=at(Person.class).constructor(String.class, Integer.class)
+                .arg().map();
+        for(Map.Entry<String,Annotation[]> entry : paramsAnnotationMap.entrySet()){
+            assertThat(entry.getKey()).isIn("0","1");
+            if("0".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(NotNull.class);
+                }
+            }else if("1".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(Max.class);
+                }
+            }
+        }
+
+        Map<String,Annotation[]> paramsAnnotationMap2=at(Person.class).method("mutlEle",String.class, Integer.class)
+                .arg().map();
+        for(Map.Entry<String,Annotation[]> entry : paramsAnnotationMap.entrySet()){
+            assertThat(entry.getKey()).isIn("0","1");
+            if("0".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(NotNull.class);
+                }
+            }else if("1".equals(entry.getKey())){
+                Annotation[] annotations=entry.getValue();
+                for(Annotation annotation:annotations){
+                    assertThat(annotation).isInstanceOf(Max.class);
+                }
+            }
+        }
+    }
 
     @Test
     public final void testPackage() {
@@ -202,6 +274,20 @@ public class ATTest {
                 .package_()
                 .annotation(PackageAnnotationTest.class).get();
         assertThat(pat).isNotNull();
+    }
+    @Test
+    public final void testExists(){
+        boolean exists=at(Person.class).annotation(XmlRootElement.class).isPresent();
+        assertThat(exists).isTrue();
+
+        boolean exists2=at(Person.class).isPresent(XmlRootElement.class);
+        assertThat(exists2).isTrue();
+
+        boolean exists3=at(Person.class).annotation(PackageAnnotationTest.class).isPresent();
+        assertThat(exists3).isFalse();
+
+        boolean exists4=at(Person.class).isPresent(PackageAnnotationTest.class);
+        assertThat(exists4).isFalse();
     }
 
     @Test(expected = RuntimeException.class)
@@ -217,11 +303,6 @@ public class ATTest {
     @Test(expected = RuntimeException.class)
     public final void testException3() {
         at(Person.class).method("getName").constructor(String.class, Integer.class);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public final void testException4() {
-        at(Person.class).method("getName").annotation(XmlAttribute.class).get();
     }
 
     @Test(expected = RuntimeException.class)
@@ -263,5 +344,18 @@ public class ATTest {
     @Test(expected = RuntimeException.class)
     public final void testPackageException() {
         at(Person.class).field("name").package_();
+    }
+
+    @Test(expected = RuntimeException.class)
+     public final void testParamMethodException(){
+        at(Person.class).field("name").param();
+    }
+    @Test(expected = RuntimeException.class)
+    public final void testArgMethodException(){
+        at(Person.class).field("name").arg();
+    }
+    @Test(expected = RuntimeException.class)
+    public final void testMapMethodException(){
+        at(Person.class).annotation().map();
     }
 }
