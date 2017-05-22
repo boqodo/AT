@@ -159,7 +159,8 @@ public class AT {
      *
      * @return 根据对应包创建的AT对象
      */
-    public AT package_() {
+    @SuppressWarnings("rawtypes")
+	public AT package_() {
         if (this.object instanceof Class) {
             Package p = ((Class) this.object).getPackage();
             return new AT(p);
@@ -392,7 +393,8 @@ public class AT {
     /**
      * 获取参数注解对应Map
      */
-    public Map<String, Annotation[]> map() {
+    @SuppressWarnings("unchecked")
+	public Map<String, Annotation[]> map() {
         if (this.object instanceof Map) {
             return (Map<String, Annotation[]>) this.object;
         }
