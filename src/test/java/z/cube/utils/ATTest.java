@@ -383,4 +383,10 @@ public class ATTest {
     public final void testMapMethodException() {
         at(Person.class).annotation().map();
     }
+
+    @Test
+    public final void testFields(){
+        at(Person.class).fields(at-> at.has(XmlAttribute.class)).forEach(at-> System.out.println(at.ai(XmlAttribute.class).name()));
+        assertThat(at(Person.class).fields()).hasSize(2);
+    }
 }

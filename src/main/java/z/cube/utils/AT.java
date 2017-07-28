@@ -8,9 +8,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Annotation 注解工具类
@@ -401,4 +400,22 @@ public class AT {
         throw new RuntimeException("无法正确获取map对象!");
     }
 
+    public List<AT> fields(Predicate<AT> filter){
+        if(this.object instanceof Class){
+            Class clazz = (Class) this.object;
+            Field[] fields = clazz.getDeclaredFields();
+            List<AT> ats = new ArrayList<>(fields.length);
+            for(Field field : fields){
+                AT at = at(field);
+                if(filter == null || filter.test(at)){
+                    ats.add(at);
+                }
+            }
+            return ats;
+        }
+        throw new RuntimeException("非Class对象无法获取Field!");
+    }
+    public List<AT> fields(){
+        return fields(null);
+    }
 }
